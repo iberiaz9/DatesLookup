@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
                 if (now < 0) now = now * (-1);
                 if (now >= curr) now = now % curr;
                 String rDate = mdf.format(new Date(now));
-                doWAlpha(rDate);
+                doWAlphamw(rDate);
             }
         });
 
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
                 Integer d = day;
                 Integer y = year;
                 String date = m.toString() + "/" + d.toString() + "/" + y.toString();
-                doWAlpha(date);
+                doWAlphamw(date);
             }
         });
     }
@@ -89,6 +89,20 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setPackage("com.wolfram.android.alpha");
+        intent.setData(dateq);
+
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        } else {
+            Log.d(LOG_TAG, "Couldn't call " + date + ", no receiving apps installed!");
+        }
+    }
+
+    private void doWAlphamw(String date) {
+        Uri dateq = Uri.parse("http://m.wolframalpha.com/input/").buildUpon()
+                .appendQueryParameter("i", date)
+                .build();
+        Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(dateq);
 
         if (intent.resolveActivity(getPackageManager()) != null) {
