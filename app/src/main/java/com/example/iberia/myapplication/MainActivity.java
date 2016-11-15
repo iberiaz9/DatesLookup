@@ -13,11 +13,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CalendarView;
 import android.widget.Toast;
+import java.util.Date;
+import java.text.DateFormat;
+import java.util.Random;
+
+import static android.R.string.no;
+import static com.example.iberia.myapplication.R.id.fab;
+import static java.lang.System.currentTimeMillis;
 
 public class MainActivity extends AppCompatActivity {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private CalendarView calendar;
+    private DateFormat mdf = DateFormat.getDateInstance(DateFormat.MEDIUM);
+    private Random mRnd = new Random();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +39,12 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                long now = mRnd.nextLong();
+                long curr = currentTimeMillis();
+                if (now < 0) now = now * (-1);
+                if (now >= curr) now = now % curr;
+                String rDate = mdf.format(new Date(now));
+                doWAlpha(rDate);
             }
         });
 
@@ -41,20 +55,8 @@ public class MainActivity extends AppCompatActivity {
                 Integer m = month + 1;
                 Integer d = day;
                 Integer y = year;
-                String date = m.toString() + "-" + d.toString() + "-" + y.toString();
-
-                Uri dateq = Uri.parse("wolframalpha:?").buildUpon()
-                        .appendQueryParameter("i", date)
-                        .build();
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setPackage("com.wolfram.android.alpha");
-                intent.setData(dateq);
-
-                if (intent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(intent);
-                } else {
-                    Log.d(LOG_TAG, "Couldn't call " + date + ", no receiving apps installed!");
-                }
+                String date = m.toString() + "/" + d.toString() + "/" + y.toString();
+                doWAlpha(date);
             }
         });
     }
@@ -79,5 +81,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void doWAlpha(String date) {
+        Uri dateq = Uri.parse("wolframalpha:?").buildUpon()
+                .appendQueryParameter("i", date)
+                .build();
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setPackage("com.wolfram.android.alpha");
+        intent.setData(dateq);
+
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        } else {
+            Log.d(LOG_TAG, "Couldn't call " + date + ", no receiving apps installed!");
+        }
     }
 }
